@@ -4,7 +4,7 @@ const { Schema, model } = mongoose;
 const productsSchema = new Schema(
   {
     name: { type: String, required: true },
-    owner: { type: Schema.Types.ObjectId, ref: "User" },
+    owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
     description: { type: String, required: true },
     category: { type: String, required: true },
     condition: { type: String, enum: ["Used", "New"], required: false },
