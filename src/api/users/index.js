@@ -32,8 +32,7 @@ userRouter.get("/", async (req, res, next) => {
 //get single user data
 userRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const user = await UsersModel.findById(req.user.userId);
-    console.log(user);
+    const user = await UsersModel.findById(req.user._id);
     res.send(user);
   } catch (error) {
     next(error);
