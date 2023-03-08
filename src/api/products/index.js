@@ -29,7 +29,9 @@ productRouter.get("/", async (req, res, next) => {
 
 productRouter.get("/:productId", async (req, res, next) => {
   try {
-    const product = await ProductsModel.findById(req.params.productId);
+    const product = await ProductsModel.findById(req.params.productId).populate(
+      "owner"
+    );
     if (product) {
       res.send(product);
     } else {
