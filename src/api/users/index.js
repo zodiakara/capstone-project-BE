@@ -3,11 +3,22 @@ import createHttpError from "http-errors";
 import { createAccessToken, createTokens } from "../../lib/auth/jwt-tools.js";
 import { JWTAuthMiddleware } from "../../lib/auth/JWTmiddleware.js";
 import UsersModel from "./model.js";
+import ProductsModel from "../products/model.js";
 import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 
 const userRouter = express.Router();
 
-const upload = multer({ dest: "uploads/" });
+const cloudinaryUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: {
+      format: "jpeg",
+      folder: "SWAPP_USERS",
+    },
+  }),
+}).single("avatar");
 
 userRouter.post("/", async (req, res, next) => {
   try {
@@ -41,15 +52,16 @@ userRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
 
 //get single user products
 
-// userRouter.get("/me/products", JWTAuthMiddleware, async (req, res, next) => {
-//     try {
-//       const user = await UsersModel.findById(req.user.userId);
-//       console.log(user);
-//       res.send(user);
-//     } catch (error) {
-//       next(error);
-//     }
-//   });
+userRouter.get("/:userId/products", async (req, res, next) => {
+  try {
+    const user = req.params.userId;
+    console.log(user);
+    const products = await ProductsModel.find({ owner: user });
+    res.send(products);
+  } catch (error) {
+    next(error);
+  }
+});
 
 userRouter.get("/:userId", async (req, res, next) => {
   try {
@@ -144,7 +156,7 @@ userRouter.post("/register", async (req, res, next) => {
 // multer upload avatar
 userRouter.post(
   "/:userId/uploadAvatar",
-  upload.single("avatar"),
+  cloudinaryUploader,
   async (req, res, next) => {
     try {
       const modifiedUser = await UsersModel.findByIdAndUpdate(
