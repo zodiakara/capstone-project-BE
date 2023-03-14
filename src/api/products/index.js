@@ -1,8 +1,21 @@
 import express from "express";
 import createHttpError from "http-errors";
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import ProductsModel from "./model.js";
 
 const productRouter = express.Router();
+
+const cloudinaryUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: {
+      format: "jpeg",
+      folder: "SWAPP/products",
+    },
+  }),
+}).array("products");
 
 productRouter.post("/", async (req, res, next) => {
   try {
@@ -91,5 +104,11 @@ productRouter.delete("/:productId", async (req, res, next) => {
     next(error);
   }
 });
+
+productRouter.post(
+  "/:productId/files",
+  cloudinaryUploader,
+  async (req, res, next) => {}
+);
 
 export default productRouter;

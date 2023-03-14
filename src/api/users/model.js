@@ -13,6 +13,13 @@ const userSchema = new Schema(
       required: false,
       default: "https://via.placeholder.com/200x200",
     },
+    address: {
+      address: { type: String, required: false },
+      number: { type: Number, required: false },
+      City: { type: String, required: false },
+      ZIP: { type: String, required: false },
+    },
+    bio: { type: String, required: false },
     password: { type: String, required: false },
     refreshToken: { type: String, required: false },
   },

@@ -15,7 +15,8 @@ const cloudinaryUploader = multer({
     cloudinary,
     params: {
       format: "jpeg",
-      folder: "SWAPP_USERS",
+      folder: "SWAPP/users",
+      overwrite: true,
     },
   }),
 }).single("avatar");
@@ -161,9 +162,12 @@ userRouter.post(
     try {
       const modifiedUser = await UsersModel.findByIdAndUpdate(
         req.params.userId,
-        { avatar: req.file.path },
+        {
+          avatar: req.file.path,
+        },
         { runValidators: true, new: true }
       );
+
       if (modifiedUser) {
         res.send(modifiedUser);
       } else {
