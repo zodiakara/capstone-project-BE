@@ -8,7 +8,16 @@ const productsSchema = new Schema(
     description: { type: String, required: true },
     category: {
       type: String,
-      enum: ["Clothing", "Kids Clothing", "Toys", "Household", "Other"],
+      enum: [
+        "Clothing",
+        "Kids Clothing",
+        "Toys",
+        "Household",
+        "Electronics",
+        "Garden",
+        "Pets",
+        "Other",
+      ],
       required: true,
     },
     condition: {

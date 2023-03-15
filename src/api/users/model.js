@@ -13,8 +13,10 @@ const userSchema = new Schema(
       required: false,
       default: "https://via.placeholder.com/200x200",
     },
+    birthDate: { type: Date, required: false },
+    gender: { type: String, required: false, enum: ["Female", "Male"] },
     address: {
-      address: { type: String, required: false },
+      street: { type: String, required: false },
       number: { type: Number, required: false },
       City: { type: String, required: false },
       ZIP: { type: String, required: false },
