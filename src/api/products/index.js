@@ -7,7 +7,7 @@ import ProductsModel from "./model.js";
 
 const productRouter = express.Router();
 
-const cloudinaryUploader = multer({
+const cloudinaryUploaderSingle = multer({
   storage: new CloudinaryStorage({
     cloudinary,
     params: {
@@ -15,7 +15,17 @@ const cloudinaryUploader = multer({
       folder: "SWAPP/products",
     },
   }),
-}).array("products");
+}).single("mainPicture");
+
+const cloudinaryUploaderMultiple = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: {
+      format: "jpeg",
+      folder: "SWAPP/productsAdd",
+    },
+  }),
+}).array("additionalPictures");
 
 productRouter.post("/", async (req, res, next) => {
   try {
@@ -105,10 +115,60 @@ productRouter.delete("/:productId", async (req, res, next) => {
   }
 });
 
+//multer upload single
 productRouter.post(
   "/:productId/files",
-  cloudinaryUploader,
-  async (req, res, next) => {}
+  cloudinaryUploaderSingle,
+  async (req, res, next) => {
+    try {
+      const modifiedProduct = await ProductsModel.findByIdAndUpdate(
+        req.params.productId,
+        {
+          mainPicture: req.file.path,
+        },
+        { runValidators: true, new: true }
+      );
+      if (modifiedProduct) {
+        res.send(modifiedProduct);
+      } else {
+        next(
+          createHttpError(
+            404,
+            `Product with id ${req.params.productId} not found!`
+          )
+        );
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+productRouter.post(
+  "/:productId/filesAdditional",
+  cloudinaryUploaderMultiple,
+  async (req, res, next) => {
+    try {
+      const modifiedProduct = await ProductsModel.findByIdAndUpdate(
+        req.params.productId,
+        {
+          additionalPictures: req.files,
+        },
+        { runValidators: true, new: true }
+      );
+      if (modifiedProduct) {
+        res.send(modifiedProduct);
+      } else {
+        next(
+          createHttpError(
+            404,
+            `Product with id ${req.params.productId} not found!`
+          )
+        );
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
 );
 
 export default productRouter;

@@ -163,10 +163,11 @@ userRouter.post(
       const modifiedUser = await UsersModel.findByIdAndUpdate(
         req.params.userId,
         {
-          avatar: req.file.path,
+          avatar: req.file,
         },
         { runValidators: true, new: true }
       );
+      console.log(req);
 
       if (modifiedUser) {
         res.send(modifiedUser);
