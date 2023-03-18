@@ -121,6 +121,7 @@ productRouter.post(
   cloudinaryUploaderSingle,
   async (req, res, next) => {
     try {
+      console.log(req.file.path);
       const modifiedProduct = await ProductsModel.findByIdAndUpdate(
         req.params.productId,
         {

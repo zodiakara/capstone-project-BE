@@ -5,8 +5,9 @@ const productsSchema = new Schema(
   {
     name: { type: String, required: true },
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    description: { type: String, required: true },
+    getter: { type: Schema.Types.ObjectId, ref: "User", required: false },
     adopted: { type: Boolean, required: true, default: false },
+    description: { type: String, required: true },
     mainPicture: {
       type: String,
       required: false,

@@ -167,7 +167,6 @@ userRouter.post(
         },
         { runValidators: true, new: true }
       );
-      console.log(req);
 
       if (modifiedUser) {
         res.send(modifiedUser);
