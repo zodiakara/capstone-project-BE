@@ -12,6 +12,7 @@ import {
 } from "./errorHandlers.js";
 import userRouter from "./api/users/index.js";
 import productRouter from "./api/products/index.js";
+import reviewsRouter from "./api/reviews/index.js";
 
 const server = express();
 const port = process.env.PORT;
@@ -41,6 +42,7 @@ server.use(
 
 server.use("/users", userRouter);
 server.use("/products", productRouter);
+server.use("/reviews", reviewsRouter);
 
 // ************************* ERROR HANDLERS ***********************
 

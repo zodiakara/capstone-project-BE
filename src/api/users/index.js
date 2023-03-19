@@ -4,6 +4,7 @@ import { createAccessToken, createTokens } from "../../lib/auth/jwt-tools.js";
 import { JWTAuthMiddleware } from "../../lib/auth/JWTmiddleware.js";
 import UsersModel from "./model.js";
 import ProductsModel from "../products/model.js";
+import ReviewsModel from "../reviews/model.js";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { v2 as cloudinary } from "cloudinary";
@@ -163,7 +164,7 @@ userRouter.post(
       const modifiedUser = await UsersModel.findByIdAndUpdate(
         req.params.userId,
         {
-          avatar: req.file,
+          avatar: req.file.path,
         },
         { runValidators: true, new: true }
       );
@@ -180,4 +181,15 @@ userRouter.post(
     }
   }
 );
+
+userRouter.get("/:userId/userComments", async (req, res, next) => {
+  const reviews = await ReviewsModel.find({
+    receiver: req.params.userId,
+  }).populate("commenter");
+  res.send(reviews);
+  try {
+  } catch (error) {
+    next(error);
+  }
+});
 export default userRouter;
