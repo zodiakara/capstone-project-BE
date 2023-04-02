@@ -16,22 +16,17 @@ const productsSchema = new Schema(
     additionalPictures: { type: Array, required: false },
     category: {
       type: String,
-      enum: [
-        "Clothing",
-        "Kids Clothing",
-        "Toys",
-        "Household",
-        "Electronics",
-        "Garden",
-        "Pets",
-        "Other",
-      ],
+      enum: ["Clothing", "Toys", "Household", "Garden", "Pets", "Other"],
       required: true,
     },
     condition: {
       type: String,
       enum: ["Used", "Slightly Used", "New"],
       required: false,
+    },
+    reviews: {
+      userAdopting: { type: Boolean, required: false, default: false },
+      userDonating: { type: Boolean, required: false, default: false },
     },
   },
   { timestamps: true }

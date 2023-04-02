@@ -13,9 +13,26 @@ import {
 import userRouter from "./api/users/index.js";
 import productRouter from "./api/products/index.js";
 import reviewsRouter from "./api/reviews/index.js";
+import createHttpError from "http-errors";
+import { Server } from "socket.io";
+import http from "http";
+import { socketHandler } from "./lib/socket/index.js";
+import chatsRouter from "./api/chats/index.js";
+import messagesRouter from "./api/messages/index.js";
 
 const server = express();
+const app = http.createServer(server);
 const port = process.env.PORT;
+
+const io = new Server(app, {
+  transports: ["websocket"],
+  // origins: [process.env.FE_DEV_URL, process.env.FE_PROD_URL]
+});
+
+io.on("connection", socketHandler);
+io.on("error", (err) => {
+  console.log(err);
+});
 
 // ************************* MIDDLEWARES **************************
 
@@ -23,18 +40,18 @@ server.use(express.json());
 const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
 server.use(
   cors({
-    origin: (origin, corsNext) => {
-      if (!origin || whitelist.indexOf(origin) !== -1) {
-        corsNext(null, true);
-      } else {
-        corsNext(
-          createHttpError(
-            400,
-            `Cors Error! Your origin ${origin} is not in the list!`
-          )
-        );
-      }
-    },
+    // origin: (origin, corsNext) => {
+    //   if (!origin || whitelist.indexOf(origin) !== -1) {
+    //     corsNext(null, true);
+    //   } else {
+    //     corsNext(
+    //       createHttpError(
+    //         400,
+    //         `Cors Error! Your origin ${origin} is not in the list!`
+    //       )
+    //     );
+    //   }
+    // },
   })
 );
 
@@ -43,6 +60,8 @@ server.use(
 server.use("/users", userRouter);
 server.use("/products", productRouter);
 server.use("/reviews", reviewsRouter);
+server.use("/chats", chatsRouter);
+server.use("/messages", messagesRouter);
 
 // ************************* ERROR HANDLERS ***********************
 

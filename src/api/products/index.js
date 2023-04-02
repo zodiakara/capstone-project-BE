@@ -4,6 +4,7 @@ import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { v2 as cloudinary } from "cloudinary";
 import ProductsModel from "./model.js";
+import q2m from "query-to-mongo";
 
 const productRouter = express.Router();
 
@@ -39,7 +40,23 @@ productRouter.post("/", async (req, res, next) => {
 
 productRouter.get("/", async (req, res, next) => {
   try {
-    const products = await ProductsModel.find();
+    const products = await ProductsModel.find().populate("owner");
+    if (products) {
+      res.send(products);
+    } else {
+      next(createHttpError(404, "no products found in the database"));
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+productRouter.get("/search/", async (req, res, next) => {
+  try {
+    const mongoQuery = q2m(req.query);
+    const products = await ProductsModel.find(
+      mongoQuery.criteria,
+      mongoQuery.options.fields
+    ).populate("owner");
     if (products) {
       res.send(products);
     } else {

@@ -21,24 +21,21 @@ reviewsRouter.get("/", async (req, res, next) => {
     next(error);
   }
 });
-// reviewsRouter.get("/userComments/:userId", async (req, res, next) => {
-//   const reviews = ReviewsModel.find({ receiver: req.params.userId }).populate(
-//     "commenter"
-//   );
-//   res.send(reviews);
-//   try {
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+
 reviewsRouter.put("/", async (req, res, next) => {
   try {
   } catch (error) {
     next(error);
   }
 });
-reviewsRouter.delete("/", async (req, res, next) => {
+reviewsRouter.delete("/:reviewId", async (req, res, next) => {
   try {
+    const reviewToDelete = await ReviewsModel.findByIdAndDelete(
+      req.params.reviewId
+    );
+    if (reviewToDelete) {
+      res.status(204).send();
+    }
   } catch (error) {
     next(error);
   }

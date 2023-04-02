@@ -51,3 +51,21 @@ export const createTokens = async (user) => {
   await user.save();
   return { accessToken, refreshToken };
 };
+
+//for the /session/refresh endpoint. To create new tokens with verify refresh token first.
+export const verifyRefreshAndCreateNewTokens = async (currentRefreshToken) => {
+  //checking integrity and expiration date of refresh token
+  const { _id } = await verifyRefreshToken(currentRefreshToken);
+
+  const user = await User.findById(_id);
+  if (user) {
+    if (user.refreshToken && user.refreshToken === currentRefreshToken) {
+      const { accessToken, refreshToken } = await createTokens(user);
+      return { accessToken, refreshToken, user };
+    } else {
+      throw createHttpError(401, `Refresh token not valid!`);
+    }
+  } else {
+    throw createHttpError(404, `User with id ${_id} not found!`);
+  }
+};
