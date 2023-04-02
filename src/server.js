@@ -76,7 +76,7 @@ mongoose.connect(process.env.MONGO_URL);
 
 mongoose.connection.on("connected", () => {
   console.log("connected to Mongo!");
-  server.listen(port, () => {
+  app.listen(port, () => {
     console.table(listEndpoints(server));
     console.log(`server is running on port ${port}`);
   });

@@ -31,8 +31,6 @@ import {
 import Message from "../../api/messages/model.js";
 import User from "../../api/users/model.js";
 
-//todo use handshake to verify access token / refresh token
-
 const saveMessage = (text, user, receiver) =>
   new Promise((resolve, reject) => {
     const message = new Message({
