@@ -124,7 +124,7 @@ export const socketHandler = (socket) => {
 
     //get sender information
     if (!senderId || !receiverId)
-      return socket.emit("messageError", "Something went wrong");
+      return socket.emit("messageError", "Something went wrong, no user id");
 
     //ifsender is not online
     if (!onlineUsers.find((user) => user.id === senderId)) {
