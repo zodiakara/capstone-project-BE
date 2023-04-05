@@ -52,61 +52,58 @@ const saveMessage = (text, user, receiver) =>
       },
       timestamp: new Date().getTime(),
     };
-    message.save((err, message) => {
-      if (err) reject(err);
-      else resolve(returnData);
-    });
+    message.save(returnData);
   });
 
 export const socketHandler = (socket) => {
   const clientId = socket.id;
   console.log("Client connected: " + clientId);
 
-  socket.on("auth", ({ accessToken, refreshToken }) => {
-    if (!accessToken || !refreshToken) {
-      socket.emit("messageError", "You are not authorized to send messages");
-      return;
-    }
+  // socket.on("auth", ({ accessToken, refreshToken }) => {
+  //   if (!accessToken || !refreshToken) {
+  //     socket.emit("messageError", "You are not authorized to send messages");
+  //     return;
+  //   }
 
-    //verify access token
-    verifyAccessToken(accessToken)
-      .then((user) => {
-        //Access token is valid
-        onlineUsers.push({ id: user._id, socketId: clientId });
-        console.log(onlineUsers);
-      })
-      .catch((err) => {
-        //verify refresh token
-        verifyRefreshAndCreateNewTokens(refreshToken)
-          .then(
-            ({
-              accessToken: newAccessToken,
-              refreshToken: newRefreshToken,
-              user,
-            }) => {
-              //refresh token is valid
-              console.log("Refresh token is valid");
-              //todo send new tokens to client
-              socket.emit("newTokens", {
-                accessToken: newAccessToken,
-                refreshToken: newRefreshToken,
-              });
+  //   //verify access token
+  //   verifyAccessToken(accessToken)
+  //     .then((user) => {
+  //       //Access token is valid
+  //       onlineUsers.push({ id: user._id, socketId: clientId });
+  //       console.log(onlineUsers);
+  //     })
+  //     .catch((err) => {
+  //       //verify refresh token
+  //       verifyRefreshAndCreateNewTokens(refreshToken)
+  //         .then(
+  //           ({
+  //             accessToken: newAccessToken,
+  //             refreshToken: newRefreshToken,
+  //             user,
+  //           }) => {
+  //             //refresh token is valid
+  //             console.log("Refresh token is valid");
+  //             //todo send new tokens to client
+  //             socket.emit("newTokens", {
+  //               accessToken: newAccessToken,
+  //               refreshToken: newRefreshToken,
+  //             });
 
-              onlineUsers.push({
-                id: user._id,
-                socketId: clientId,
-              });
-              socket.emit("welcome", "You have been authorized");
-            }
-          )
-          .catch((err) => {
-            socket.emit(
-              "messageError",
-              "You are not authorized to send messages"
-            );
-          });
-      });
-  });
+  //             onlineUsers.push({
+  //               id: user._id,
+  //               socketId: clientId,
+  //             });
+  //             socket.emit("welcome", "You have been authorized");
+  //           }
+  //         )
+  //         .catch((err) => {
+  //           socket.emit(
+  //             "messageError",
+  //             "You are not authorized to send messages"
+  //           );
+  //         });
+  //     });
+  // });
 
   socket.on("disconnect", () => {
     console.log("Client disconnected: " + clientId);
@@ -118,51 +115,53 @@ export const socketHandler = (socket) => {
     console.log(err);
   });
 
+  socket.on("join-room", (room) => {
+    socket.join(room);
+  });
+
   //chat handler
-  socket.on("sendMessage", (data) => {
-    const { text, receiverId, senderId } = data;
+  socket.on("sendMessage", (data, room) => {
+    const { content, receiver, sender } = data;
+    console.log("data", data);
+    console.log(onlineUsers);
 
     //get sender information
-    if (!senderId || !receiverId)
+    if (!sender || !receiver)
       return socket.emit("messageError", "Something went wrong, no user id!!");
 
-    //ifsender is not online
-    if (!onlineUsers.find((user) => user.id === senderId)) {
-      return socket.emit("messageError", "You are not authorized");
-    }
-
-    User.findById(senderId)
+    User.findById(sender._id)
       .then(async (user) => {
         //get receiver
-        const receiver = await User.findById(receiverId);
-        if (!receiver) {
+        const receiver2 = await User.findById(receiver._id);
+        if (!receiver2) {
           return socket.emit("messageError", "Something went wrong");
         }
+        const messageToSend = {
+          content,
+          receiver,
+          sender: user,
+        };
+        socket.to(room).emit("newMessage", messageToSend);
+        console.log("ROOM", room);
+        // delete receiver2.password;
+        // delete receiver2.refreshToken;
+        // delete receiver2.accessToken;
+        // delete user.password;
+        // delete user.refreshToken;
+        // delete user.accessToken;
+        // saveMessage(content, user, receiver2)
+        //   .then((message) => {
+        //     //send message to receiver
+        //     const receiverSocketId = onlineUsers.find(
+        //       (user) => user.id === receiver2._id
+        //     ).socketId;
+        //     delete message.sender;
+        //     delete message.receiver;
 
-        delete receiver.password;
-        delete receiver.refreshToken;
-        delete receiver.accessToken;
-        delete user.password;
-        delete user.refreshToken;
-        delete user.accessToken;
-        saveMessage(text, user, receiver)
-          .then((message) => {
-            //send message to receiver
-            const receiverSocketId = onlineUsers.find(
-              (user) => user.id === receiverId
-            ).socketId;
-            delete message.sender;
-            delete message.receiver;
-            const messageToSend = {
-              message,
-              receiver,
-              sender: user,
-            };
-            socket.to(receiverSocketId).emit("newMessage", messageToSend);
-          })
-          .catch((err) => {
-            socket.emit("messageError", "Something went wrong");
-          });
+        // })
+        // .catch((err) => {
+        //   socket.emit("messageError", "Something went wrong");
+        // });
       })
       .catch((err) => {
         console.log(err);
