@@ -29,11 +29,7 @@ const port = process.env.PORT;
 
 const io = new Server(app, {
   transports: ["websocket"],
-  origins: [
-    process.env.FE_DEV_URL,
-    process.env.FE_PROD_URL,
-    process.env.FE_DEV_URL2,
-  ],
+  origins: [process.env.FE_DEV_URL, process.env.FE_PROD_URL],
 });
 
 io.on("connection", socketHandler);
@@ -43,11 +39,7 @@ io.on("error", (err) => {
 
 // ************************* MIDDLEWARES **************************
 
-const whitelist = [
-  process.env.FE_DEV_URL,
-  process.env.FE_PROD_URL,
-  process.env.FE_DEV_URL2,
-];
+const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
 server.use(
   cors({
     origin: (origin, corsNext) => {
